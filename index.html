@@ -12,21 +12,15 @@
             margin: 0;
             padding: 20px;
             display: flex;
-            gap: 40px;
+            flex-direction: column;
+            align-items: center;
             position: relative;
             overflow-x: hidden;
         }
         
         .game-area {
-            flex: 1;
-            background: #161b22;
-            padding: 20px;
-            border-radius: 10px;
-            border: 1px solid #30363d;
-        }
-        
-        .code-area {
-            flex: 1;
+            width: 100%;
+            max-width: 800px;
             background: #161b22;
             padding: 20px;
             border-radius: 10px;
@@ -93,70 +87,6 @@
             min-height: 60px;
         }
         
-        .code-block {
-            background: #0d1117;
-            padding: 15px;
-            border-radius: 6px;
-            border: 1px solid #30363d;
-            margin: 15px 0;
-            font-family: monospace;
-            line-height: 1.6;
-        }
-        
-        .draggable {
-            background: #58a6ff;
-            color: #0d1117;
-            padding: 4px 8px;
-            border-radius: 4px;
-            cursor: move;
-            display: inline-block;
-            margin: 2px;
-            font-weight: bold;
-        }
-        
-        .slot {
-            display: inline-block;
-            min-width: 60px;
-            height: 24px;
-            border: 2px dashed #30363d;
-            border-radius: 4px;
-            margin: 0 5px;
-            vertical-align: middle;
-            text-align: center;
-            line-height: 20px;
-            position: relative;
-        }
-        
-        .slot.empty::before {
-            content: "∅";
-            color: #8b949e;
-            font-size: 14px;
-        }
-        
-        .slot.hover {
-            border-color: #58a6ff;
-            background: #1c2128;
-        }
-        
-        .slot-content {
-            background: #58a6ff;
-            color: #0d1117;
-            padding: 2px 6px;
-            border-radius: 3px;
-            cursor: move;
-        }
-        
-        .result-slot {
-            display: inline-block;
-            padding: 2px 8px;
-            margin: 0 5px;
-            border-radius: 4px;
-        }
-        
-        .win { color: #3fb950; }
-        .lose { color: #f85149; }
-        .draw { color: #ffd33d; }
-        
         .sequence {
             font-family: monospace;
             background: #000;
@@ -173,34 +103,9 @@
             border-radius: 6px;
         }
         
-        .draggables-panel {
-            background: #0d1117;
-            padding: 15px;
-            border-radius: 6px;
-            margin: 15px 0;
-            border: 1px solid #30363d;
-        }
-        
-        .delete-zone {
-            background: #f85149;
-            color: white;
-            padding: 10px;
-            border-radius: 6px;
-            text-align: center;
-            margin: 10px 0;
-            border: 2px dashed #ff6b6b;
-            transition: all 0.3s;
-        }
-        
-        .delete-zone.hover {
-            background: #ff6b6b;
-            transform: scale(1.02);
-        }
-        
-        .empty-slot {
-            color: #8b949e;
-            font-style: italic;
-        }
+        .win { color: #3fb950; }
+        .lose { color: #f85149; }
+        .draw { color: #ffd33d; }
         
         .win-counter {
             background: #1c2128;
@@ -265,6 +170,68 @@
         .refresh-btn:hover {
             background: #6ab0ff;
         }
+        
+        .restart-btn {
+            background: #da3633;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 10px 0;
+        }
+        
+        .restart-btn:hover {
+            background: #f85149;
+        }
+        
+        /* Модальное окно */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: #161b22;
+            padding: 30px;
+            border-radius: 10px;
+            border: 2px solid #ffd33d;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        .modal h2 {
+            color: #ffd33d;
+            margin-top: 0;
+        }
+        
+        .modal-btn {
+            background: #58a6ff;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 20px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .modal-btn:hover {
+            background: #6ab0ff;
+        }
     </style>
 </head>
 <body>
@@ -300,6 +267,15 @@
             Выберите вариант и нажмите "Играть"
         </div>
         
+        <div class="sequence-info">
+            <strong>Текущая последовательность:</strong>
+            <button class="restart-btn" onclick="generateNewSequence()">🔄 Рестарт</button>
+        </div>
+        
+        <div class="sequence" id="sequenceDisplay">
+            <strong>Загрузка...</strong>
+        </div>
+        
         <div class="rules">
             <h3>Правила:</h3>
             <ul>
@@ -310,37 +286,14 @@
         </div>
     </div>
     
-    <div class="code-area">
-        <h1>⚙️ Логика игры</h1>
-        
-        <div class="sequence-info">
-            <strong>Текущая последовательность:</strong>
-        </div>
-        
-        <div class="sequence" id="sequenceDisplay">
-            <strong>Загрузка...</strong>
-        </div>
-
-        <div class="draggables-panel">
-            <h3>Перетащите элементы:</h3>
-            <div>
-                <span class="draggable" draggable="true" data-value="100">[100]</span>
-                <span class="draggable" draggable="true" data-value="01">[01]</span>
-                <span class="draggable" draggable="true" data-value="1100">[1100]</span>
-            </div>
-            <div style="margin-top: 10px;">
-                <button onclick="clearAllRules()">🧹 Очистить все правила</button>
-            </div>
-        </div>
-        
-        <div class="current-rules">
-            <h3>Текущие правила:</h3>
-            
-            <div class="delete-zone" id="deleteZone">
-                🗑️ Перетащите элемент сюда для удаления
-            </div>
-            
-            <div id="currentRules"></div>
+    <!-- Модальное окно для 5 побед -->
+    <div class="modal" id="winModal">
+        <div class="modal-content">
+            <h2>🎉 Поздравляем! 🎉</h2>
+            <p>Вы достигли 5 побед подряд!</p>
+            <p>Вы успешно прошли испытание по кибербезопасности!</p>
+            <a href="https://t.me/fbit_unior" target="_blank" class="modal-btn">Перейти в канал FBIT</a>
+            <button class="restart-btn" onclick="closeModal()" style="margin-left: 10px;">Продолжить игру</button>
         </div>
     </div>
 
@@ -349,13 +302,6 @@
         let sequenceIndex = 0;
         let winStreak = 0;
         
-        // Все возможные комбинации (3 игрока × 3 бота = 9 правил)
-        const allPossibleRules = [
-            '100-100', '100-01', '100-1100',
-            '01-100', '01-01', '01-1100', 
-            '1100-100', '1100-01', '1100-1100'
-        ];
-        
         // Коды и их длины
         const codes = [
             { value: '100', length: 3 },
@@ -363,8 +309,19 @@
             { value: '1100', length: 4 }
         ];
         
-        // Инициализируем логику игры со всеми 9 правилами
-        let gameLogic = {};
+        // Логика игры (упрощенная версия)
+        const gameLogic = {
+            '100-1100': 'win',   // Взломщик > Уязвимость
+            '100-01': 'lose',    // Взломщик < Защита
+            '01-100': 'win',     // Защита > Взломщик
+            '01-1100': 'lose',   // Защита < Уязвимость
+            '1100-01': 'win',    // Уязвимость > Защита
+            '1100-100': 'lose',  // Уязвимость < Взломщик
+            // Ничьи
+            '100-100': 'draw',
+            '01-01': 'draw',
+            '1100-1100': 'draw'
+        };
         
         // Функция для генерации случайной последовательности
         function generateRandomSequence(length = 10) {
@@ -421,168 +378,18 @@
             botSequence = generateRandomSequence(10);
             sequenceIndex = 0;
             displaySequence(botSequence);
+            
+            // Сброс счетчика побед при рестарте
+            winStreak = 0;
+            document.getElementById('winStreak').textContent = winStreak;
+            
+            // Очистка результата
+            document.getElementById('result').innerHTML = 'Выберите вариант и нажмите "Играть"';
+            
+            // Сброс выбранного варианта
+            document.querySelectorAll('.choice').forEach(c => c.classList.remove('selected'));
         }
         
-        function initializeRules() {
-            allPossibleRules.forEach(rule => {
-                // Устанавливаем стандартные значения
-                if (rule === '100-1100') gameLogic[rule] = {player: '100', bot: '1100', result: 'win'};
-                else if (rule === '100-01') gameLogic[rule] = {player: '100', bot: '01', result: 'lose'};
-                else if (rule === '01-100') gameLogic[rule] = {player: '01', bot: '100', result: 'win'};
-                else if (rule === '01-1100') gameLogic[rule] = {player: '01', bot: '1100', result: 'lose'};
-                else if (rule === '1100-01') gameLogic[rule] = {player: '1100', bot: '01', result: 'win'};
-                else if (rule === '1100-100') gameLogic[rule] = {player: '1100', bot: '100', result: 'lose'};
-                else gameLogic[rule] = {player: rule.split('-')[0], bot: rule.split('-')[1], result: 'draw'};
-            });
-        }
-
-        function updateCurrentRules() {
-            const rulesDiv = document.getElementById('currentRules');
-            rulesDiv.innerHTML = '';
-            
-            // Всегда отображаем все 9 правил
-            allPossibleRules.forEach(key => {
-                const rule = gameLogic[key];
-                const ruleDiv = document.createElement('div');
-                ruleDiv.className = 'rule-item';
-                
-                ruleDiv.innerHTML = `
-                    Если игрок == <span class="slot" data-rule="${key}" data-type="player">
-                        ${rule.player ? `<span class="slot-content" draggable="true">[${rule.player}]</span>` : '<span class="empty-slot">∅</span>'}
-                    </span> 
-                    и бот == <span class="slot" data-rule="${key}" data-type="bot">
-                        ${rule.bot ? `<span class="slot-content" draggable="true">[${rule.bot}]</span>` : '<span class="empty-slot">∅</span>'}
-                    </span>, то: 
-                    <span class="result-slot ${rule.result}">${getResultText(rule.result)}</span>
-                `;
-                
-                // Добавляем класс empty если слот пустой
-                const playerSlot = ruleDiv.querySelector('[data-type="player"]');
-                const botSlot = ruleDiv.querySelector('[data-type="bot"]');
-                if (!rule.player) playerSlot.classList.add('empty');
-                if (!rule.bot) botSlot.classList.add('empty');
-                
-                rulesDiv.appendChild(ruleDiv);
-            });
-            
-            setupDragAndDrop();
-        }
-
-        function setupDragAndDrop() {
-            // Обработчики для слотов с кодами (добавление)
-            document.querySelectorAll('.slot').forEach(slot => {
-                slot.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    slot.classList.add('hover');
-                });
-                
-                slot.addEventListener('dragleave', () => {
-                    slot.classList.remove('hover');
-                });
-                
-                slot.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    slot.classList.remove('hover');
-                    
-                    const draggedValue = e.dataTransfer.getData('text/plain');
-                    const ruleKey = slot.dataset.rule;
-                    const slotType = slot.dataset.type;
-                    
-                    if (!ruleKey) return;
-                    
-                    // Разрешаем перетаскивать только коды (100, 01, 1100)
-                    if (!['100', '01', '1100'].includes(draggedValue)) return;
-                    
-                    const rule = gameLogic[ruleKey];
-                    
-                    if (slotType === 'player') {
-                        rule.player = draggedValue;
-                    } else if (slotType === 'bot') {
-                        rule.bot = draggedValue;
-                    }
-                    
-                    updateCurrentRules();
-                });
-            });
-            
-            // Обработчики для удаления элементов из слотов
-            document.querySelectorAll('.slot-content').forEach(content => {
-                content.addEventListener('dragstart', (e) => {
-                    e.dataTransfer.setData('text/plain', 'remove');
-                    const slot = content.closest('.slot');
-                    e.dataTransfer.setData('slot-type', slot.dataset.type);
-                    e.dataTransfer.setData('rule-key', slot.dataset.rule);
-                });
-            });
-            
-            // Зона удаления
-            const deleteZone = document.getElementById('deleteZone');
-            
-            deleteZone.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                deleteZone.classList.add('hover');
-            });
-            
-            deleteZone.addEventListener('dragleave', () => {
-                deleteZone.classList.remove('hover');
-            });
-            
-            deleteZone.addEventListener('drop', (e) => {
-                e.preventDefault();
-                deleteZone.classList.remove('hover');
-                
-                const action = e.dataTransfer.getData('text/plain');
-                if (action === 'remove') {
-                    const slotType = e.dataTransfer.getData('slot-type');
-                    const ruleKey = e.dataTransfer.getData('rule-key');
-                    
-                    if (ruleKey && slotType) {
-                        const rule = gameLogic[ruleKey];
-                        
-                        if (slotType === 'player') {
-                            rule.player = null; // Полностью очищаем слот игрока
-                        } else if (slotType === 'bot') {
-                            rule.bot = null; // Полностью очищаем слот бота
-                        }
-                        
-                        updateCurrentRules();
-                    }
-                }
-            });
-        }
-
-        function clearAllRules() {
-            if (confirm('Очистить все правила? Все слоты станут пустыми.')) {
-                // Сохраняем текущее распределение результатов (3 победы, 3 поражения, 3 ничьи)
-                const winRules = [];
-                const loseRules = [];
-                const drawRules = [];
-                
-                // Собираем правила по их текущим результатам
-                allPossibleRules.forEach(key => {
-                    const rule = gameLogic[key];
-                    if (rule.result === 'win') winRules.push(key);
-                    else if (rule.result === 'lose') loseRules.push(key);
-                    else drawRules.push(key);
-                });
-                
-                // Очищаем все слоты, но сохраняем результаты
-                allPossibleRules.forEach(key => {
-                    gameLogic[key] = {player: null, bot: null, result: gameLogic[key].result};
-                });
-                
-                updateCurrentRules();
-            }
-        }
-
-        function getResultText(result) {
-            return {
-                'win': 'Победил Игрок',
-                'lose': 'Победил Бот',
-                'draw': 'Ничья'
-            }[result];
-        }
-
         // Функция для создания салюта
         function createFirework(x, y) {
             const firework = document.createElement('div');
@@ -632,14 +439,17 @@
                     createFirework(window.innerWidth - 100, 100 + i * 150);
                 }, i * 300 + 150);
             }
+            
+            // Показываем модальное окно
+            setTimeout(() => {
+                document.getElementById('winModal').style.display = 'flex';
+            }, 1000);
         }
-
-        // Drag and Drop для элементов кода
-        document.querySelectorAll('.draggable').forEach(draggable => {
-            draggable.addEventListener('dragstart', (e) => {
-                e.dataTransfer.setData('text/plain', draggable.dataset.value);
-            });
-        });
+        
+        // Функция для закрытия модального окна
+        function closeModal() {
+            document.getElementById('winModal').style.display = 'none';
+        }
 
         // Логика игры
         document.querySelectorAll('.choice').forEach(choice => {
@@ -682,19 +492,9 @@
                 sequenceIndex = 0;
             }
 
-            // Ищем подходящее правило
-            let result = 'draw'; // По умолчанию ничья
-            
-            // Ищем правило, где совпадают и игрок, и бот (не пустые)
-            for (const [key, rule] of Object.entries(gameLogic)) {
-                const playerMatch = rule.player === playerChoice;
-                const botMatch = rule.bot === botChoice;
-                
-                if (playerMatch && botMatch) {
-                    result = rule.result;
-                    break;
-                }
-            }
+            // Определяем результат на основе логики игры
+            const key = `${playerChoice}-${botChoice}`;
+            const result = gameLogic[key] || 'draw';
             
             // Обновляем счётчик побед
             if (result === 'win') {
@@ -727,11 +527,17 @@
                 '1100': 'Уязвимость 💊'
             }[code];
         }
+        
+        function getResultText(result) {
+            return {
+                'win': 'Победил Игрок',
+                'lose': 'Победил Бот',
+                'draw': 'Ничья'
+            }[result];
+        }
 
         // Инициализация
-        initializeRules();
         generateNewSequence(); // Генерируем начальную последовательность
-        updateCurrentRules();
     </script>
 </body>
 </html>
